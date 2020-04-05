@@ -1,8 +1,14 @@
 ---
 title:  "Decoding JSON with Decoder in Swift"
 date:   2020-03-26 18:24:03 -0600
-categories: swift decoder json
+categories: swift 
+tags: swift json decodable
+header:
+   overlay_image: /assets/images/decodersplash.jpg
+   overlay_filter: 0.5
 ---
+
+A deep dive into the Decoder protocol...
 
 To say parsing JSON in Swift is annoying is a bit of an understatement.  For those of us used to Objective-C’s more loose typing, parsing JSON was as simple as making your data models initialize themselves with an NSDictionary.  The strong typing of Swift removes this flexibility.  Recently (well, not SUPER recently - Swift 4, to be precise), a protocol was added which makes JSON parsing easier, with some hard to understand caveats.  
 
@@ -38,9 +44,9 @@ Consider the following JSON:
 {% highlight swift %}
 let json = """
 {
-	"name": "Mr Soapy Bar Soap",
-	"sku": "MrSoapy_Bar_1"
-	"description": "Mr Soapy keeps you fresh and clean"
+   "name": "Mr Soapy Bar Soap",
+   "sku": "MrSoapy_Bar_1"
+   "description": "Mr Soapy keeps you fresh and clean"
 }
 """.data(using: .utf8)!
 {% endhighlight %}
@@ -82,18 +88,18 @@ We now have some JSON and we know which protocol we need to parse it.  We also k
 import Foundation
 
 struct Product : Codable {
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 
 let jsonData = """
 {
-    "name": "Mr Soapy Bar Soap",
-    "sku": "MrSoapy_Bar_1",
-    "price": 1.50,
-    "description": "Mr Soapy keeps you fresh and clean"
+   "name": "Mr Soapy Bar Soap",
+   "sku": "MrSoapy_Bar_1",
+   "price": 1.50,
+   "description": "Mr Soapy keeps you fresh and clean"
 }
 """.data(using: .utf8)!
 
@@ -108,7 +114,7 @@ Decodable itself is available in [Codable.swift][swift_codable] and looks like:
 {% highlight swift %}
 @_implicitly_synthesizes_nested_requirement("CodingKeys")
 public protocol Decodable {
-  init(from decoder: Decoder) throws
+   init(from decoder: Decoder) throws
 }
 {% endhighlight %}
 
@@ -122,17 +128,17 @@ There is another piece of compiler sorcery in our playground, and it has to do w
 
 {% highlight swift %}
 struct Product : Codable {   
-    enum CodingKeys: String, CodingKey {
-        case name = "name"
-        case sku = "sku"
-        case price = "price"
-        case description = "description"
-    }
+   enum CodingKeys: String, CodingKey {
+      case name = "name"
+      case sku = "sku"
+      case price = "price"
+      case description = "description"
+   }
     
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 {% endhighlight %}
 
@@ -142,14 +148,14 @@ It should be noted that this all working depends on your properties being of typ
 
 {% highlight swift %}
 extension Int: Codable {
-  public init(from decoder: Decoder) throws {
-    self = try decoder.singleValueContainer().decode(Int.self)
-  }
+   public init(from decoder: Decoder) throws {
+      self = try decoder.singleValueContainer().decode(Int.self)
+   }
 
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(self)
-  }
+   public func encode(to encoder: Encoder) throws {
+      var container = encoder.singleValueContainer()
+      try container.encode(self)
+   }
 }
 {% endhighlight %}
 
@@ -161,11 +167,11 @@ CodingKey itself is a protocol that defines what a type needs to do in order to 
 
 {% highlight swift %}
 public protocol CodingKey : CustomDebugStringConvertible, CustomStringConvertible {
-    var stringValue: String { get }
-    init?(stringValue: String)
+   var stringValue: String { get }
+   init?(stringValue: String)
 
-    var intValue: Int? { get }
-    init?(intValue: Int)
+   var intValue: Int? { get }
+   init?(intValue: Int)
 }
 {% endhighlight %}
 
@@ -180,10 +186,10 @@ Below is an extreme example, but what if your JSON author decided to use single 
 {% highlight swift %}
 let jsonData = """
 {
-    "n": "Mr Soapy Bar Soap",
-    "s": "MrSoapy_Bar_1",
-    "p": 1.50,
-    "d": "Mr Soapy keeps you fresh and clean"
+   "n": "Mr Soapy Bar Soap",
+   "s": "MrSoapy_Bar_1",
+   "p": 1.50,
+   "d": "Mr Soapy keeps you fresh and clean"
 }
 """.data(using: .utf8)!
 {% endhighlight %}
@@ -192,17 +198,17 @@ You can use CodingKeys to fix this.  Consider the following:
 
 {% highlight swift %}
 struct Product : Codable {
-    enum CodingKeys: String, CodingKey {
-        case name = "n"
-        case sku = "s"
-        case price = "p"
-        case description = "d"
-    }
+   enum CodingKeys: String, CodingKey {
+      case name = "n"
+      case sku = "s"
+      case price = "p"
+      case description = "d"
+   }
 
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 
 let decoder = JSONDecoder()
@@ -222,25 +228,25 @@ Also note, to have a mutable data structure, you need to decode it to a mutable 
 {% highlight swift %}
 import Foundation
 struct Product : Codable {
-    enum CodingKeys: String, CodingKey {
-        case name = "n"
-        case sku = "s"
-        case price = "p"
-        case description = "d"
-    }
+   enum CodingKeys: String, CodingKey {
+      case name = "n"
+      case sku = "s"
+      case price = "p"
+      case description = "d"
+   }
 
-    var name: String
-    let sku: String
-    let price: Double
-    let description: String
+   var name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 
 let jsonData = """
 {
-    "n": "Mr Soapy Bar Soap",
-    "s": "MrSoapy_Bar_1",
-    "p": 1.50,
-    "d": "Mr Soapy keeps you fresh and clean"
+   "n": "Mr Soapy Bar Soap",
+   "s": "MrSoapy_Bar_1",
+   "p": 1.50,
+   "d": "Mr Soapy keeps you fresh and clean"
 }
 """.data(using: .utf8)!
 
@@ -261,17 +267,17 @@ If we consider the JSON we’ve been working with, what happens if the descripti
 import Foundation
 
 class Product : Codable {
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String;
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String;
 }
 
 let jsonData = """
 {
-    "name": "Mr Soapy Bar Soap",
-    "sku": "MrSoapy_Bar_1",
-    "price": 1.50
+   "name": "Mr Soapy Bar Soap",
+   "sku": "MrSoapy_Bar_1",
+   "price": 1.50
 }
 """.data(using: .utf8)!
 
@@ -304,34 +310,33 @@ This is all great, but it relies on our JSON being a well known and flat structu
 import Foundation
 
 struct ProductCategory : Codable {
-    struct Product : Codable {
-        let name: String
-        let sku: String
-        let price: Double
-        let description: String
-    }
+   struct Product : Codable {
+      let name: String
+      let sku: String
+      let price: Double
+      let description: String
+   }
     
-    let categoryName: String
-    let products:[Product]
+   let categoryName: String
+   let products:[Product]
 }
 
 let jsonData = """
 {
-    "categoryName" : "soap",
-    "products" : [
-                    {
-                        "name": "Mr Soapy Bar Soap",
-                        "sku": "MrSoapy_Bar_1",
-                        "price": 1.50,
-                        "description": "Mr Soapy keeps you fresh and clean"
-                    },
-                    {
-                        "name": "Squeeky Clean Liquid Soap",
-                        "sku": "Squeeky_bottle_1",
-                        "price": 2.50,
-                        "description": "Squeeky clean for pourable freshitude"
-                    }
-                ]
+   "categoryName" : "soap",
+   "products" : [
+         {
+            "name": "Mr Soapy Bar Soap",
+            "sku": "MrSoapy_Bar_1",
+            "price": 1.50,
+            "description": "Mr Soapy keeps you fresh and clean"
+         },
+         {
+            "name": "Squeeky Clean Liquid Soap",
+            "sku": "Squeeky_bottle_1",
+            "price": 2.50,
+            "description": "Squeeky clean for pourable freshitude"
+         }]
 }
 """.data(using: .utf8)!
 
@@ -339,7 +344,7 @@ let decoder = JSONDecoder()
 let productCategory = try! decoder.decode(ProductCategory.self, from: jsonData)
 
 for product in productCategory.products {
-    print(product.name)
+   print(product.name)
 }
 {% endhighlight %}
 
@@ -349,15 +354,15 @@ That said, you can also separate the two structs like below:
 
 {% highlight swift %}
 struct Product : Codable {
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 
 struct ProductCategory : Codable {
-    let categoryName: String
-    let products:[Product]
+   let categoryName: String
+   let products:[Product]
 }
 {% endhighlight %}
 
@@ -367,15 +372,15 @@ Having them nested provides some further context to the reader by associating th
 import Foundation
 
 struct ProductCategory : Codable {
-    struct Product : Codable {
-        let name: String
-        let sku: String
-        let price: Double
-        let description: String
-    }
+   struct Product : Codable {
+      let name: String
+      let sku: String
+      let price: Double
+      let description: String
+   }
 
-    let categoryName: String
-    let products:[Product]
+   let categoryName: String
+   let products:[Product]
 }
 
 let product = ProductCategory.Product(name: "testProduct", sku: "testSku", price: 0.0, description: "test");
@@ -395,26 +400,26 @@ In addition to arrays, it is very common to see dictionaries embedded in diction
 import Foundation
 
 struct ProductCategory : Codable {
-    struct Product : Codable {
-        let name: String
-        let sku: String
-        let price: Double
-        let description: String
-    }
+   struct Product : Codable {
+      let name: String
+      let sku: String
+      let price: Double
+      let description: String
+   }
 
-    let categoryName: String
-    let product:Product
+   let categoryName: String
+   let product:Product
 }
 
 let jsonData = """
 {
-    "categoryName" : "soap",
-    "product" :    {
-                        "name": "Mr Soapy Bar Soap",
-                        "sku": "MrSoapy_Bar_1",
-                        "price": 1.50,
-                        "description": "Mr Soapy keeps you fresh and clean"
-                    }
+   "categoryName" : "soap",
+   "product" :    {
+                  "name": "Mr Soapy Bar Soap",
+                  "sku": "MrSoapy_Bar_1",
+                  "price": 1.50,
+                  "description": "Mr Soapy keeps you fresh and clean"
+                  }
 }
 """.data(using: .utf8)!
 
@@ -433,14 +438,14 @@ Ideally, you are building your iOS app and your JSON at the same time.  When thi
 
 {% highlight swift %}
 {
-	"elements": [{
-		"element": {
-            	"name": "Mr Soapy Bar Soap",
-            	"sku": "MrSoapy_Bar_1",
-            	"price": 1.50,
-            	"description": "Mr Soapy keeps you fresh and clean"
-		}
-	}]
+   "elements": [{
+      "element": {
+               "name": "Mr Soapy Bar Soap",
+               "sku": "MrSoapy_Bar_1",
+               "price": 1.50,
+               "description": "Mr Soapy keeps you fresh and clean"
+      }
+   }]
 }
 {% endhighlight %}
 
@@ -448,18 +453,18 @@ In this case, the API writer has decided to add a lot of flexibility, generality
 
 {% highlight swift %}
 struct Product : Codable {
-    let name: String
-    let sku: String
-    let price: Double
-    let description: String
+   let name: String
+   let sku: String
+   let price: Double
+   let description: String
 }
 
 struct ElementData : Codable {
-    let element: Product
+   let element: Product
 }
 
 struct Elements : Codable {
-    let elements: [ElementData]
+   let elements: [ElementData]
 }
 {% endhighlight %}
 
@@ -483,23 +488,23 @@ To begin with, we are going to be implementing the required init(from decoder:) 
 
 {% highlight swift %}
 class Product : Decodable {
-    var name: String?
-    var sku: String?
-    var price: Double?
-    var description: String?
+   var name: String?
+   var sku: String?
+   var price: Double?
+   var description: String?
     
-    enum CodingKeys : String, CodingKey {
-        case elements = "elements"
-        case element = "element"
-        case name = "name"
-        case sku = "sku"
-        case price = "price"
-        case description = "description"
-    }
+   enum CodingKeys : String, CodingKey {
+      case elements = "elements"
+      case element = "element"
+      case name = "name"
+      case sku = "sku"
+      case price = "price"
+      case description = "description"
+   }
     
-    required init(from decoder: Decoder) throws {
-		// TODO
-    }
+   required init(from decoder: Decoder) throws {
+      // TODO
+   }
 }
 {% endhighlight %}
 
@@ -513,7 +518,7 @@ So, given this, let’s take a detailed look at our implementation of the initia
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
-	let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
+   let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
 }
 {% endhighlight %}
 
@@ -527,13 +532,13 @@ Our next step is to get the array of elements:
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
-	let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
+   let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
         
-    var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
+   var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
         
-    if (elementsArrayContainer.count != 1) {
-    	throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
-    }
+   if (elementsArrayContainer.count != 1) {
+      throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
+   }
 }
 {% endhighlight %}
 
@@ -559,17 +564,17 @@ Thus, the next step in our parser is to iterate the array:
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
-	let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
+   let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
         
-	var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
+   var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
         
-	if (elementsArrayContainer.count != 1) {
-		throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
-	}
+   if (elementsArrayContainer.count != 1) {
+      throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
+   }
         
-	while !elementsArrayContainer.isAtEnd {
-		let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
-	}
+   while !elementsArrayContainer.isAtEnd {
+      let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
+   }
 }
 {% endhighlight %}
 
@@ -577,18 +582,18 @@ We use a while loop that checks the condition that the elementsArrayContainer is
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
-	let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
+   let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
         
-	var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
+   var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
         
-	if (elementsArrayContainer.count != 1) {
-		throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
-	}
+   if (elementsArrayContainer.count != 1) {
+      throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
+   }
         
-	while !elementsArrayContainer.isAtEnd {
-		let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
+   while !elementsArrayContainer.isAtEnd {
+      let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
 		
-		let elementContainer = try elementDictionaryWrapperContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: .element)
+      let elementContainer = try elementDictionaryWrapperContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: .element)
 	}
 }
 {% endhighlight %}
@@ -597,23 +602,23 @@ Simple enough.  This is another KeyedDecodingContainer, and we request the one w
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
-	let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
+   let elementsContainer = try decoder.container(keyedBy: CodingKeys.self)
         
-	var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
+   var elementsArrayContainer = try elementsContainer.nestedUnkeyedContainer(forKey: .elements)
         
-	if (elementsArrayContainer.count != 1) {
-		throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
-	}
+   if (elementsArrayContainer.count != 1) {
+      throw DecodingError.dataCorruptedError(in: elementsArrayContainer, debugDescription: "elements must be an array with one item")
+   }
         
-	while !elementsArrayContainer.isAtEnd {
-		let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
+   while !elementsArrayContainer.isAtEnd {
+      let elementDictionaryWrapperContainer = try elementsArrayContainer.nestedContainer(keyedBy: CodingKeys.self)
 		
-		let elementContainer = try elementDictionaryWrapperContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: .element)
+      let elementContainer = try elementDictionaryWrapperContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: .element)
 		
-		self.name = try elementContainer.decode(String.self, forKey: .name)
-		self.sku = try elementContainer.decode(String.self, forKey: .sku)
-		self.price = try elementContainer.decode(Double.self, forKey: .price)
-		self.description = try elementContainer.decode(String.self, forKey: .description)
+      self.name = try elementContainer.decode(String.self, forKey: .name)
+      self.sku = try elementContainer.decode(String.self, forKey: .sku)
+      self.price = try elementContainer.decode(Double.self, forKey: .price)
+      self.description = try elementContainer.decode(String.self, forKey: .description)
 	}
 }
 {% endhighlight %}
@@ -640,22 +645,22 @@ Consider the following JSON showing pickup times for a set of SKUs in a store:
 {% highlight swift %}
 let jsonData = """
 {
-    "skus": {
-        "storePickup": {
-            "MrSoapy_Bar_1": {
-                "pickupTimes": {
-                    "2019-12-09T07:00:00.000-0800": {},
-                    "2019-12-10T07:00:00.000-0800": {}
-                }
-            },
-            "Squeeky_bottle_1": {
-                "pickupTimes": {
-                    "2019-12-09T07:00:00.000-0800": {},
-                    "2019-12-10T07:00:00.000-0800": {}
-                }
+   "skus": {
+      "storePickup": {
+         "MrSoapy_Bar_1": {
+            "pickupTimes": {
+               "2019-12-09T07:00:00.000-0800": {},
+               "2019-12-10T07:00:00.000-0800": {}
             }
-        }
-    }
+         },
+         "Squeeky_bottle_1": {
+            "pickupTimes": {
+               "2019-12-09T07:00:00.000-0800": {},
+               "2019-12-10T07:00:00.000-0800": {}
+            }
+         }
+      }
+   }
 }
 """.data(using: .utf8)!
 {% endhighlight %}
@@ -672,17 +677,17 @@ So, we need to start by considering what our data model should look like.  I’m
 
 {% highlight swift %}
 struct StoreSkus : Decodable {
-    let pickupSkus: [StorePickupSkus]
+   let pickupSkus: [StorePickupSkus]
     
-    struct StorePickupSkus {
-        let sku: String
-        let pickupTimes: [Date]
+   struct StorePickupSkus {
+      let sku: String
+      let pickupTimes: [Date]
         
-        init(sku: String, pickupTimes: [Date]) {
-            self.sku = sku
-            self.pickupTimes = pickupTimes
-        }
-    }
+      init(sku: String, pickupTimes: [Date]) {
+         self.sku = sku
+         self.pickupTimes = pickupTimes
+      }
+   }
 }
 {% endhighlight %}
 
@@ -692,12 +697,12 @@ Like with the last example, let’s see what our init(from decoder:) looks like,
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
-	var pickupSkus:[StorePickupSkus] = []
+   var pickupSkus:[StorePickupSkus] = []
         
-	let container = try decoder.container(keyedBy: CodingKeys.self)
-	let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
+   let container = try decoder.container(keyedBy: CodingKeys.self)
+   let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
 
-	self.pickupSkus = pickupSkus
+   self.pickupSkus = pickupSkus
 }
 {% endhighlight %}
 
@@ -705,13 +710,13 @@ We start out by creating a mutable version of an array of StorePickupSkus.  We w
 
 {% highlight swift %}
 struct StoreSkus : Decodable {
-	enum CodingKeys: String, CodingKey {
-        case skus
-        case storePickup
-        case pickupTimes
-    }
+   enum CodingKeys: String, CodingKey {
+      case skus
+      case storePickup
+      case pickupTimes
+   }
 	
-	// ...
+   // ...
 }
 {% endhighlight %}
 
@@ -721,18 +726,18 @@ Recall when we first looked at the CodingKey protocol how the compiler generates
 
 {% highlight swift %}
 struct CustomCodingKey: CodingKey {
-	var intValue: Int?
+   var intValue: Int?
         
-	init?(intValue: Int) {
-		self.intValue = intValue
-		self.stringValue = String(intValue)
-	}
+   init?(intValue: Int) {
+      self.intValue = intValue
+      self.stringValue = String(intValue)
+   }
         
-	var stringValue: String
+   var stringValue: String
         
-	init?(stringValue: String) {
-		self.stringValue = stringValue
-	}
+   init?(stringValue: String) {
+      self.stringValue = stringValue
+   }
 }
 {% endhighlight %}
 
@@ -740,17 +745,17 @@ This implementation is very simple.  In our case, we need to get named keys from
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
-	var pickupSkus:[StorePickupSkus] = []
+   var pickupSkus:[StorePickupSkus] = []
         
-	let container = try decoder.container(keyedBy: CodingKeys.self)
-	let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
+   let container = try decoder.container(keyedBy: CodingKeys.self)
+   let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
 	
-	let storePickupContainer = try skusContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .storePickup)
-	for skuKey in storePickupContainer.allKeys {
-		print(skuKey)
-	}
+   let storePickupContainer = try skusContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .storePickup)
+   for skuKey in storePickupContainer.allKeys {
+      print(skuKey)
+   }
 	
-	self.pickupSkus = pickupSkus
+   self.pickupSkus = pickupSkus
 }
 // CustomCodingKey(stringValue: "Squeeky_bottle_1", intValue: nil)
 // CustomCodingKey(stringValue: "MrSoapy_Bar_1", intValue: nil)
@@ -771,12 +776,12 @@ The next step is to get the nested container which are named with the skus thems
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
-	var pickupSkus:[StorePickupSkus] = []
+   var pickupSkus:[StorePickupSkus] = []
         
-	let container = try decoder.container(keyedBy: CodingKeys.self)
-	let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
+   let container = try decoder.container(keyedBy: CodingKeys.self)
+   let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
 
-	let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
+   let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
 }
 {% endhighlight %}
 
@@ -793,18 +798,18 @@ For the next step, we are going to create an empty mutable array of Date objects
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
-	var pickupSkus:[StorePickupSkus] = []
+   var pickupSkus:[StorePickupSkus] = []
         
-	let container = try decoder.container(keyedBy: CodingKeys.self)
-	let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
+   let container = try decoder.container(keyedBy: CodingKeys.self)
+   let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
 	
-	let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
+   let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
 	
-	var pickupTimes:[Date] = []
+   var pickupTimes:[Date] = []
 
-	for pickupTimeKey in pickupTimesContainer.allKeys {
-		print(pickupTimeKey)
-	}
+   for pickupTimeKey in pickupTimesContainer.allKeys {
+      print(pickupTimeKey)
+   }
 }
 // CustomCodingKey(stringValue: "2019-12-09T07:00:00.000-0800", intValue: nil)
 // CustomCodingKey(stringValue: "2019-12-10T07:00:00.000-0800", intValue: nil)
@@ -818,16 +823,16 @@ Next, we want to use DateFormatter to convert the date string into a Date object
 var pickupTimes:[Date] = []
 
 for pickupTimeKey in pickupTimesContainer.allKeys {
-	let dateFormatter = DateFormatter()
-	dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-	dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-	let date = dateFormatter.date(from: pickupTimeKey.stringValue)
+   let dateFormatter = DateFormatter()
+   dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+   dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+   let date = dateFormatter.date(from: pickupTimeKey.stringValue)
 	
-	if (date != nil) {
-		pickupTimes.append(date!)
-	} else {
-		throw DecodingError.dataCorruptedError(forKey: pickupTimeKey, in: pickupTimesContainer, debugDescription: "Invalid date format")
-	}
+   if (date != nil) {
+      pickupTimes.append(date!)  
+   } else {
+      throw DecodingError.dataCorruptedError(forKey: pickupTimeKey, in: pickupTimesContainer, debugDescription: "Invalid date format")
+   }
 }
 {% endhighlight %}
 
@@ -846,38 +851,38 @@ Putting it all together, we end up with an initializer that looks like this:
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
-    var pickupSkus:[StorePickupSkus] = []
+   var pickupSkus:[StorePickupSkus] = []
 
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
+   let container = try decoder.container(keyedBy: CodingKeys.self)
+   let skusContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .skus)
 
-    let storePickupContainer = try skusContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .storePickup)
+   let storePickupContainer = try skusContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .storePickup)
 
-    for skuKey in storePickupContainer.allKeys {
-        let skuContainer = try storePickupContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: skuKey)
+   for skuKey in storePickupContainer.allKeys {
+      let skuContainer = try storePickupContainer.nestedContainer(keyedBy: CodingKeys.self, forKey: skuKey)
 
-        let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
+      let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodingKey.self, forKey: .pickupTimes)
 
-        var pickupTimes:[Date] = []
+      var pickupTimes:[Date] = []
 
-        for pickupTimeKey in pickupTimesContainer.allKeys {
-            let dateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-            let date = dateFormatter.date(from: pickupTimeKey.stringValue)
-            if (date != nil) {
-                pickupTimes.append(date!)
-            } else {
-                // Throw error
-                throw DecodingError.dataCorruptedError(forKey: pickupTimeKey, in: pickupTimesContainer, debugDescription: "Invalid date format")
-            }
-        }
+      for pickupTimeKey in pickupTimesContainer.allKeys {
+         let dateFormatter = DateFormatter()
+         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+         let date = dateFormatter.date(from: pickupTimeKey.stringValue)
+         if (date != nil) {
+            pickupTimes.append(date!)
+         } else {
+            // Throw error
+            throw DecodingError.dataCorruptedError(forKey: pickupTimeKey, in: pickupTimesContainer, debugDescription: "Invalid date format")
+         }
+      }
 
-        let storePickupSku = StorePickupSkus(sku: skuKey.stringValue, pickupTimes: pickupTimes)
-        pickupSkus.append(storePickupSku)
-    }
+      let storePickupSku = StorePickupSkus(sku: skuKey.stringValue, pickupTimes: pickupTimes)
+      pickupSkus.append(storePickupSku)
+   }
 
-    self.pickupSkus = pickupSkus
+   self.pickupSkus = pickupSkus
 }
 {% endhighlight %}
 
@@ -900,11 +905,11 @@ Extending a prior concept, consider this simple JSON that contains a list of dat
 {% highlight swift %}
 let jsonData = """
 {
-    "dates": [
-        "2019-12-09T07:00:00.000-0800",
-        "2019-12-10T07:00:00.000-0800",
-        "2019-12-11T07:00:00.000-0800"
-    ]
+   "dates": [
+      "2019-12-09T07:00:00.000-0800",
+      "2019-12-10T07:00:00.000-0800",
+      "2019-12-11T07:00:00.000-0800"
+      ]
 }
 """.data(using: .utf8)!
 {% endhighlight %}
@@ -913,34 +918,34 @@ We can parse this manually with an unkeyed container.
 
 {% highlight swift %}
 struct DateList : Decodable {
-    enum CodingKeys: String, CodingKey {
-        case dates
-    }
+   enum CodingKeys: String, CodingKey {
+      case dates
+   }
     
-    var dates:[Date]
+   var dates:[Date]
     
-    init(from decoder: Decoder) throws {
-        var dates:[Date] = []
+   init(from decoder: Decoder) throws {
+      var dates:[Date] = []
         
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        var datesContainer = try container.nestedUnkeyedContainer(forKey: .dates)
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      var datesContainer = try container.nestedUnkeyedContainer(forKey: .dates)
         
-        while !datesContainer.isAtEnd {
-            let dateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-            let dateString = try datesContainer.decode(String.self)
-            let date = dateFormatter.date(from: dateString)
-            if (date != nil) {
-                dates.append(date!)
-            } else {
-                // Throw error
-                throw DecodingError.dataCorruptedError(in: datesContainer, debugDescription: "Invalid date format")
-            }
-        }
+      while !datesContainer.isAtEnd {
+         let dateFormatter = DateFormatter()
+         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+         let dateString = try datesContainer.decode(String.self)
+         let date = dateFormatter.date(from: dateString)
+         if (date != nil) {
+            dates.append(date!)
+         } else {
+            // Throw error
+            throw DecodingError.dataCorruptedError(in: datesContainer, debugDescription: "Invalid date format")
+         }
+      }
         
-        self.dates = dates
-    }
+      self.dates = dates
+   }
 }
 
 let decoder = JSONDecoder()
@@ -961,11 +966,11 @@ That said, we can actually accomplish this much easier and automatically.
 
 {% highlight swift %}
 struct DateList : Decodable {
-    enum CodingKeys: String, CodingKey {
-        case dates
-    }
+   enum CodingKeys: String, CodingKey {
+      case dates
+   }
     
-    var dates:[Date]
+   var dates:[Date]
 }
 
 let decoder = JSONDecoder()
