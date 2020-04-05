@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Decoding JSON with Decoder in Swift"
 date:   2020-03-26 18:24:03 -0600
 categories: swift decoder json
