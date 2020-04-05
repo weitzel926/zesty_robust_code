@@ -58,7 +58,7 @@ plugins:
 author:
   name   : "Wade Weitzel"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "Developer.  Mountain biker.  Racefan."
+  bio    : "Developer.  Mountain biker.  Race fan."
   links:
     - label: "Website"
       icon: "fas fa-fw fa-link"
