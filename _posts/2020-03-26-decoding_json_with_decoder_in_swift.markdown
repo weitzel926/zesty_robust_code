@@ -57,7 +57,7 @@ There are two things to be aware of.  You will often see the “””<Some Stri
 func data(using encoding: String.Encoding, allowLossyConversion: Bool = false) -> Data?
 {% endhighlight %}
 
-If you went and looked at the Swift String struct documentation expecting to find this method, you were probably surprised it wasn’t there.  The data method is actually part of [StringProtocol][string_protocol_docs], which String (and SubString) conform to.  
+If you went and looked at the Swift String struct documentation expecting to find this method, you were probably surprised it wasn’t there.  The data method is actually defined in [StringProtocol][string_protocol_docs], which String (and SubString) conform to.  So, it's there, but tricky to find in the documentation. If you look at the code, you will also see it is in a different place as well.
 
 Open a new playground and add this:
 
@@ -73,6 +73,10 @@ let data2 = nsstring.data(using: String.Encoding.utf8.rawValue)!
 {% endhighlight %}
 
 So, for an NSString instance, the code is bridged from Objective-C, which gives a different signature because it is an entirely different type.  There is typically no reason to use NSString in Swift code, but this is confusing because some of the String methods you are accustomed to (like the data method) are not documented in the String class, they are in StringProtocol.  
+
+### The JSON spec
+
+One should also be aware that a mapping like what we know on the iOS side as a "dictionary" is called an "object" in the [JSON specification][json_spec].  For the remainder of this document, we will refer to them only as "dictionaries", but it may be helpful to note the difference. 
 
 ### Codable & Decodable
 
@@ -175,7 +179,7 @@ public protocol CodingKey : CustomDebugStringConvertible, CustomStringConvertibl
 }
 {% endhighlight %}
 
-It contains a stringValue and an initializer that takes a string for keys (for collections that have named elements) and an intValue with an Int initializer (for collections that are indexed).  It is always possible (we will work an example below) to customize your own CodingKey instance for your own purposes.  So, how do we get to the from the enum above to a CodingKey?
+It contains a stringValue and an initializer that takes a string for keys (for collections that have named elements) and an intValue with an Int initializer (for collections that are indexed).  It is always possible (we will work an example below) to customize your own CodingKey instance for your own purposes.  So, how do we get from the enum above to a CodingKey?
 
 The short answer:  the compiler does it for us.  It will generate an enum that conforms to CodingKey.  It will override the stringValue (or intValue) getter to return the correct value based on what you provided in the enum.  The link above for the swift archival serialization proposal will show you a sample generated class, if you are curious.  The decoder, whether you are using the compiler-generated default or you implemented it yourself will now have strongly-typed objects to parse the collections with.  
 
@@ -290,8 +294,8 @@ print(product.name)
 This actually generates an error for the key “description” not being found.  We can resolve this in one of two ways:
 
 {% highlight swift %}
-let description: String!  // make it optional
-let description: String = “”  // provide a default value
+var description: String!  // make it optional
+var description: String = “”  // provide a default value
 {% endhighlight %}
 
 Which should you use?  The drawbacks of both approaches are clear.  If you need to check for the existence of a property to use later in your code, you probably want to make it an optional.  If you are likely to just be passing that back in further RESTful POST/PUT calls, you can probably just have the default value and avoid the unwrapping.  Even with the extra overhead of unwrapping, I’d likely default to the optional unless I am certain I will never have to check to see if the property has actual data in it.
@@ -514,7 +518,7 @@ Second, since we lost auto-synthesis we now need to conform to traditional initi
 
 Third, CodingKeys contains all potential keys.  You could nest this structure for additional readability, but for now, I flattened it. 
 
-So, given this, let’s take a detailed look at our implementation of the initializer, one line at  a time.  The general strategy is to use [Decoder protocol][[decoder_protocol] to dig all the way into the inner part of our JSON, which we will then extract and initialize our object with.  Note that this code is making the assumption that we always know we only have a single product in the JSON.  
+So, given this, let’s take a detailed look at our implementation of the initializer, one line at  a time.  The general strategy is to use [Decoder protocol][decoder_protocol] to dig all the way into the inner part of our JSON, which we will then extract and initialize our object with.  Note that this code is making the assumption that we always know we only have a single product in the JSON.  
 
 {% highlight swift %}
 required init(from decoder: Decoder) throws {
@@ -794,7 +798,7 @@ let pickupTimesContainer = try skuContainer.nestedContainer(keyedBy: CustomCodin
 
 In this case, when we retrieve the skuContainer, we use the CustomCodingKey type.  That means in order to get the pickupTimesContainer, we have to create an instance of CustomCodeKey initialized with the “pickupTimes” String we want to use as the key.  This works as well.  The type of custom key used to create the container is the type of key the system expects you to use to build the next container.  My preference is to use the first example for simplicity, especially when you consider we probably shouldn’t force unwrap the CustomCodingKey initialization, which gives us extra error stuff to handle. 
 
-For the next step, we are going to create an empty mutable array of Date objects that we will build up as we iterate through each pickup time.  This iteration uses the allKeys accessor on the pickupTimesContainer, just like we saw above.  If you print the key, you can see the code is iterating through both pairs of objects.
+For the next step, we are going to create an empty mutable array of Date objects.  Eventually, this will store the dates we parse from the JSON.  For now, it is a placeholder.  This iteration uses the allKeys accessor on the pickupTimesContainer, just like we saw above.  If you print the key, you can see the code is iterating through both pairs of objects.
 
 {% highlight swift %}
 init(from decoder: Decoder) throws {
@@ -1002,3 +1006,4 @@ We’ve covered much ground and several examples that should show you how to pie
 [decoder_protocol]: https://developer.apple.com/documentation/swift/decoder
 [keyed_decoding_container]: https://developer.apple.com/documentation/swift/keyeddecodingcontainerprotocol
 [unkeyed_decoding_container]: https://developer.apple.com/documentation/swift/unkeyeddecodingcontainer
+[json_spec]: https://www.json.org/json-en.html
