@@ -66,6 +66,13 @@ let string = String("test")
 let data = string.data(using: .utf8)!
 {% endhighlight %}
 
+You should find that this compiles and runs fine.  Now add the following:
+
+{% highlight swift %}
+let nsstring = NSString("test")
+let data2 = nsstring.data(using: .utf8)!
+{% endhighlight %}
+
 This fails to compile with a type UInt has no member ‘utf8’ error.  What is happening here gives us insight into why this works behind the scenes.  The compile error can be fixed with the following modification:
 
 {% highlight swift %}
