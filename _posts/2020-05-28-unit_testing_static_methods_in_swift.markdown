@@ -48,7 +48,7 @@ class SwiftStaticUtils {
     
     static func getUKMessage() -> String {
         guard let hour = SwiftStaticUtils.getHour() else {
-            return "Welcome American"
+            return "Welcome Briton"
         }
         
         if hour <= 12 {
@@ -125,11 +125,11 @@ class MessageManagerTests: XCTestCase {
 
 ### Faking The Swift Static Methods
 
-Let's start inside out, and control the output of the static methods written in Swift.  In order to do this, we have to use dependency injection to inject SwiftStaticUtils as a type.  Swift provides a special [MetaType type][swift-metatype] that can help us achieve this.  The metatype can represent any class, enumeration or structure type.  In our case, the metatype for SwiftStaticUtils is SwiftStaticUtils.Type.  Given this, we now have a hook we can use to inject SwiftStaticUtils as a type, so we can control our class methods.
+Let's start inside out, and control the output of the static methods written in Swift.  "Dependency injection" can be used to allow us to replace the static methods the MessageManager uses with custom ones specific for our test.  Dependency injection simply means to write your code in a way that you can change (or "inject") your dependencies.  In order to do this, we will need to inject SwiftStaticUtils as a type (as opposed to an instance of some type, because SwiftStaticUtils is just a class with static methods).  Swift provides a special [MetaType type][swift-metatype] that can help us achieve this.  The metatype can represent any class, enumeration or structure type.  In our case, the metatype for SwiftStaticUtils is SwiftStaticUtils.Type.  Given this, we now have a hook we can use to inject SwiftStaticUtils as a type, so we can control our class methods.
 
 {% highlight swift %}
 class MessageManager {
-    var swiftStaticUtils:SwiftStaticUtils.Type! = SwiftStaticUtils.self
+    var swiftStaticUtils:SwiftStaticUtils.Type = SwiftStaticUtils.self
     
     func getMessage() -> String {
         if ObjectiveCStaticUtils.getAppVersionType() == "US" {
@@ -157,7 +157,7 @@ extension SwiftStaticUtils : SwiftStaticUtilsProtocol {}
 Here, we define a new protocol with two static methods (Note, we left out getHour() because we don't need to control what it returns for our test).  We then add an extension to SwiftStaticUtils which means that SwiftStaticUtils conforms to SwiftStaticUtilsProtocol.  Said another way, it means that SwiftStaticUtils has a getUSMessage() and a getUKMessage() method, and we can refer to an instance of SwiftStaticUtils as an instance of SwiftStaticUtilsProtocol.  We can change our member variable in MessageManager to reflect this:
 
 {% highlight swift %}
-var swiftStaticUtils:SwiftStaticUtilsProtocol.Type! = SwiftStaticUtils.self
+var swiftStaticUtils:SwiftStaticUtilsProtocol.Type = SwiftStaticUtils.self
 {% endhighlight %}
 
 If you rerun the code, it still works.  Now we can make a manual fake that conforms to SwiftStaticUtilsProtocol and inject it.  We will add FakeSwiftStaticUtils to our test code:
@@ -197,8 +197,8 @@ With the protocol in place, we can again change MessageManager to use it:
 
 {% highlight swift %}
 class MessageManager {
-    var swiftStaticUtils:SwiftStaticUtilsProtocol.Type! = SwiftStaticUtils.self
-    var objectiveCStaticUtils:ObjectiveCStaticUtilsProtocol.Type! = ObjectiveCStaticUtils.self
+    var swiftStaticUtils:SwiftStaticUtilsProtocol.Type = SwiftStaticUtils.self
+    var objectiveCStaticUtils:ObjectiveCStaticUtilsProtocol.Type = ObjectiveCStaticUtils.self
     
     func getMessage() -> String {
         if objectiveCStaticUtils.getAppVersionType() == "US" {
@@ -231,7 +231,7 @@ In addition to implementing getAppVersionType(), we also add a static variable c
 
 ### Putting It All Together
 
-Given that all of our tests have the same dependencies, we can avoiding repeating ourselves (some folks will refer to this as DRY - Don't Repeat Yourself) and initialize our fakes in our setup and teardown methods of our test case. 
+Given that all of our tests have the same dependencies, we can avoiding repeating ourselves (some folks will refer to this as DRY - Don't Repeat Yourself) and initialize our fakes in our setup and teardown methods of our test case.  The test will be run in this order:  setup() is called, the test is executed, tearDown() is called.  This happens with each test. 
 
 {% highlight swift %}
  var fakeSwiftStaticUtils: FakeSwiftStaticUtils.Type!
