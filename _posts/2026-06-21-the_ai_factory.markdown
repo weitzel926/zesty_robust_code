@@ -4,7 +4,7 @@ date:   2026-06-21
 categories: ai 
 tags: ai agentic claude factory
 header:
-   overlay_image: /assets/images/factorysplash.jpg
+   overlay_image: /assets/images/FactorySplash.jpg
    overlay_filter: 0.5
 ---
 
